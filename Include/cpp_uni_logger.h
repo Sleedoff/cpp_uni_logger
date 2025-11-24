@@ -14,8 +14,10 @@
 
 #include <cstdint>
 #include <iostream>
+#include <fcntl.h>
 #include <filesystem>
 #include <string.h>
+#include <unistd.h>
 
 namespace fs = std::filesystem;
 
@@ -49,7 +51,7 @@ public:
     }
     int set_log_level(msg_level level);
     void set_rewrite_flag(bool flag);
-    int set_file_path(const std::string& file_path);
+    int set_file_path(const std::string& u_file_path);
 
     int create_log_file();
     int create_log_file(const std::string& file_name);

@@ -33,10 +33,17 @@ void cpp_uni_logger::set_rewrite_flag(bool flag){
     rewrite_flag = flag;
 }
 
-int cpp_uni_logger::set_file_path(const std::string &file_path){
+int cpp_uni_logger::set_file_path(const std::string &u_file_path){
     fs::path fp = file_path;
-    if((!fs::is_directory(fp)) && (!fs::exists(fp)))
-        return -ENOENT;
+    if(!fs::exists(fp)){
+        std::cout << "\033[33m Directory doesn\'t exist! Create directory: " << file_path << "\033[0m" << std::endl;  
+        fs::create_directory(file_path);
+        if(!fs::exists(fp)){
+            std::cout << "\033[33m Can\'t create directory! \033[0m" << std::endl;
+            exit(EPERM);
+        }
+    }
+    file_path = u_file_path;
     return 0;
 }
 
@@ -74,7 +81,36 @@ int cpp_uni_logger::create_log_file(const std::string &file_name){
     if(file_name.size() == 0)
         return -EINVAL;
     if(rewrite_flag){
-
+        std::string full_file_name = file_path;
+        full_file_name.insert(full_file_name.size(), file_name);
+        int fp = open(full_file_name.c_str(), O_RDWR, O_CREAT);
+        if(fp < 0)
+            return -ENOENT;
+        close(fp);
+    }else{
+        bool create_file = false;
+        uint8_t add_num = 0;
+        while (!create_file){
+            std::string full_file_name = file_path;
+            full_file_name.insert(full_file_name.size(), file_name);
+            if(add_num != 0)
+                full_file_name.insert(full_file_name.size(), std::to_string(add_num));
+            int fp = open(full_file_name.c_str(), O_RDWR);
+            if(fp < 0){
+                close(fp);
+                fp = open(full_file_name.c_str(), O_RDWR, O_CREAT);
+                if(fp < 0)
+                    return -ENOENT;
+                close(fp);
+                create_file = true;
+            }
+            close(fp);
+            if(add_num < 255)
+                add_num++;
+            else
+                return -EINVAL;
+        }
+        return 0;
     }
     if(FILE *file = fopen(file_name.c_str(), "r"))
         fclose(file);
