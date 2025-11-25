@@ -130,7 +130,7 @@ int cpp_uni_logger::print_info(const std::string &msg, msg_level level){
     switch (level)
     {
     case SIMPLE_MSG:
-        std::cout << "\033[37m [INFO] " << msg << "\033[0m" << std::endl;
+        std::cout << "\033[37m [MSG] " << msg << "\033[0m" << std::endl;
         break;
     case FATAL_ERROR_MSG:
         std::cout << "\033[41m [FATAL ERROR] " << msg << "\033[0m" << std::endl;
@@ -145,11 +145,51 @@ int cpp_uni_logger::print_info(const std::string &msg, msg_level level){
         std::cout << "\033[32m [INFO] " << msg << "\033[0m" << std::endl;
         break;
     case DEBUG_MSG:
-        std::cout << "\033[43m [DEBUG] " << msg << "\033[0m" << std::endl;
+        std::cout << "\033[34m [DEBUG] " << msg << "\033[0m" << std::endl;
         break;
     default:
         return -EINVAL;
         break;
     }
     return 0;
+}
+
+int cpp_uni_logger::simple_msg(const std::string &msg){
+    return print_info(msg, SIMPLE_MSG);
+}
+
+int cpp_uni_logger::fatal_error_msg(const std::string &msg){
+    return print_info(msg, FATAL_ERROR_MSG);
+}
+
+int cpp_uni_logger::fatal_error_msg(const std::string &msg, int8_t error_num){
+    std::string buf_msg;
+    buf_msg.insert(0, msg);
+    buf_msg.insert(buf_msg.size(), " Return status: ");
+    buf_msg.insert(buf_msg.size(), std::to_string(error_num));
+    return print_info(buf_msg, FATAL_ERROR_MSG);
+}
+
+int cpp_uni_logger::error_msg(const std::string &msg){
+    return print_info(msg, ERROR_MSG);
+}
+
+int cpp_uni_logger::error_msg(const std::string &msg, int8_t error_num){
+    std::string buf_msg;
+    buf_msg.insert(0, msg);
+    buf_msg.insert(buf_msg.size(), " Return status: ");
+    buf_msg.insert(buf_msg.size(), std::to_string(error_num));
+    return print_info(buf_msg, ERROR_MSG);
+}
+
+int cpp_uni_logger::warning_msg(const std::string &msg){
+    return print_info(msg, WARNING_MSG);
+}
+
+int cpp_uni_logger::info_msg(const std::string &msg){
+    return print_info(msg, INFO_MSG);
+}
+
+int cpp_uni_logger::debug_msg(const std::string &msg){
+    return print_info(msg, DEBUG_MSG);
 }

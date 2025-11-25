@@ -34,15 +34,17 @@ enum msg_level : uint8_t
 class cpp_uni_logger
 {
 private:
-    static cpp_uni_logger* instance;
+    inline static cpp_uni_logger* instance{nullptr};
 
     cpp_uni_logger(cpp_uni_logger &obj) = delete;
-    ~cpp_uni_logger() = delete;
-    cpp_uni_logger();
+    ~cpp_uni_logger() = default;
+    cpp_uni_logger() = default;
 
     std::string file_path = "log/";
     msg_level log_level = ERROR_MSG;
     bool rewrite_flag = true;
+
+    int print_info(const std::string& msg, msg_level level);
 public:
     static cpp_uni_logger* get_instance(){
         if(instance == nullptr)
@@ -57,7 +59,16 @@ public:
     int create_log_file(const std::string& file_name);
     int create_log_file(const std::string& file_name, msg_level level);
 
-    int print_info(const std::string& msg, msg_level level);
+    int simple_msg(const std::string& msg);
+    int fatal_error_msg(const std::string& msg);
+    int fatal_error_msg(const std::string& msg, int8_t error_num);
+    int error_msg(const std::string& msg);
+    int error_msg(const std::string& msg, int8_t error_num);
+    int warning_msg(const std::string& msg);
+    int info_msg(const std::string& msg);
+    int debug_msg(const std::string& msg);
 
 };
+
+//inline cpp_uni_logger* cpp_uni_logger::instance = nullptr;
 #endif
