@@ -13,6 +13,11 @@
 
 int main(){
     cpp_uni_logger* logger = cpp_uni_logger::get_instance();
+    logger->set_log_level(DEBUG_MSG);
+    int status = logger->create_log_file("test");
+    if(status != 0)
+        logger->error_msg("Kakay-to xyina s sozdaniem faila", status);
+
     logger->simple_msg("This is simple message!");
     logger->fatal_error_msg("This is fatal error message!");
     logger->fatal_error_msg("This is fatal error message with error code!", 10);
@@ -21,5 +26,9 @@ int main(){
     logger->warning_msg("This is warning message!");
     logger->info_msg("This is info message!");
     logger->debug_msg("This is debug message!");
+
+    status = logger->write_log("This is simple message!", SIMPLE_MSG);
+    if(status != 0)
+        logger->error_msg("Kakay-to xyina s sozdaniem faila", status);
     return 0;
 }
