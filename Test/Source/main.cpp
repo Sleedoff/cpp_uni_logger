@@ -16,7 +16,7 @@ int main(){
     logger->set_log_level(DEBUG_MSG);
     int status = logger->create_log_file("test");
     if(status != 0)
-        logger->error_msg("Kakay-to xyina s sozdaniem faila", status);
+        logger->error_msg("Something wrong with function \"create_log_file\" ", status);
 
     logger->simple_msg("This is simple message!");
     logger->fatal_error_msg("This is fatal error message!");
@@ -29,6 +29,6 @@ int main(){
 
     status = logger->write_log("This is simple message!", SIMPLE_MSG);
     if(status != 0)
-        logger->error_msg("Kakay-to xyina s sozdaniem faila", status);
+        logger->error_msg("Something wrong with function \"write_log\" ", status);
     return 0;
 }

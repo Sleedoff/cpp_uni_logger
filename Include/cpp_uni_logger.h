@@ -13,10 +13,15 @@
 #define CPP_UNI_LOGGER_H_
 
 #include <cstdint>
+//#include <cstdio>
+#include <ctime>
+#include <cstring>
 #include <iostream>
 #include <fcntl.h>
 #include <filesystem>
+#include <fstream>
 #include <string.h>
+#include <sys/stat.h>
 #include <unistd.h>
 
 namespace fs = std::filesystem;
@@ -41,8 +46,10 @@ private:
     cpp_uni_logger() = default;
 
     std::string file_path = "log/";
+    std::string full_file_name = "log/file.log";
     msg_level log_level = ERROR_MSG;
     bool rewrite_flag = true;
+    bool log_enable = false;
 
     int print_info(const std::string& msg, msg_level level);
 public:
@@ -53,11 +60,13 @@ public:
     }
     int set_log_level(msg_level level);
     void set_rewrite_flag(bool flag);
-    int set_file_path(const std::string& u_file_path);
+    int set_file_path(std::string u_file_path);
 
     int create_log_file();
     int create_log_file(const std::string& file_name);
     int create_log_file(const std::string& file_name, msg_level level);
+
+    int write_log(const std::string& msg, msg_level level);
 
     int simple_msg(const std::string& msg);
     int fatal_error_msg(const std::string& msg);

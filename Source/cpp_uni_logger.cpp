@@ -33,11 +33,18 @@ void cpp_uni_logger::set_rewrite_flag(bool flag){
     rewrite_flag = flag;
 }
 
-int cpp_uni_logger::set_file_path(const std::string &u_file_path){
-    fs::path fp = file_path;
+int cpp_uni_logger::set_file_path(std::string u_file_path){
+    std::string buf = u_file_path.substr(u_file_path.size() - 1, 1);
+    if(std::strcmp(buf.c_str(), "/") != 0)
+        u_file_path.insert(u_file_path.size(), "/");
+    buf.clear();
+    buf = u_file_path.substr(0, 1);
+    if(std::strcmp(buf.c_str(), "/") == 0)
+        u_file_path.erase(0, 1);
+    fs::path fp = u_file_path;
     if(!fs::exists(fp)){
-        std::cout << "\033[33m Directory doesn\'t exist! Create directory: " << file_path << "\033[0m" << std::endl;  
-        fs::create_directory(file_path);
+        std::cout << "\033[33m Directory doesn\'t exist! Create directory: " << u_file_path << "\033[0m" << std::endl;  
+        fs::create_directory(u_file_path);
         if(!fs::exists(fp)){
             std::cout << "\033[33m Can\'t create directory! \033[0m" << std::endl;
             exit(EPERM);
@@ -80,25 +87,28 @@ int cpp_uni_logger::create_log_file(const std::string &file_name, msg_level leve
 int cpp_uni_logger::create_log_file(const std::string &file_name){
     if(file_name.size() == 0)
         return -EINVAL;
+    set_file_path(file_path);
     if(rewrite_flag){
-        std::string full_file_name = file_path;
+        full_file_name = file_path;
         full_file_name.insert(full_file_name.size(), file_name);
-        int fp = open(full_file_name.c_str(), O_RDWR, O_CREAT);
+        full_file_name.insert(full_file_name.size(), ".log");
+        int fp = open(full_file_name.c_str(), O_WRONLY | O_CREAT | O_APPEND, S_IRWXO | S_IRWXG | S_IRWXU);
         if(fp < 0)
             return -ENOENT;
         close(fp);
-    }else{
+    } else{
         bool create_file = false;
         uint8_t add_num = 0;
         while (!create_file){
-            std::string full_file_name = file_path;
+            full_file_name = file_path;
             full_file_name.insert(full_file_name.size(), file_name);
             if(add_num != 0)
                 full_file_name.insert(full_file_name.size(), std::to_string(add_num));
+            full_file_name.insert(full_file_name.size(), ".log");
             int fp = open(full_file_name.c_str(), O_RDWR);
             if(fp < 0){
                 close(fp);
-                fp = open(full_file_name.c_str(), O_RDWR, O_CREAT);
+                fp = open(full_file_name.c_str(), O_RDWR | O_CREAT | O_APPEND, S_IRWXO | S_IRWXG | S_IRWXU);
                 if(fp < 0)
                     return -ENOENT;
                 close(fp);
@@ -112,8 +122,51 @@ int cpp_uni_logger::create_log_file(const std::string &file_name){
         }
         return 0;
     }
-    if(FILE *file = fopen(file_name.c_str(), "r"))
-        fclose(file);
+    return 0;
+}
+
+int cpp_uni_logger::write_log(const std::string &msg, msg_level level){
+    if(level > log_level)
+        return -EPERM;
+    //make log string
+    std::string input_msg;
+    std::time_t t = std::time(nullptr);
+    char time_buf[100];
+    if(std::strftime(time_buf, sizeof(time_buf), "%F %T", std::localtime(&t)))
+        input_msg = time_buf;
+    switch (level)
+    {
+    case SIMPLE_MSG:
+        input_msg.insert(input_msg.size(), " [MSG] - ");
+        break;
+    case FATAL_ERROR_MSG:
+        input_msg.insert(input_msg.size(), " [FATAL ERROR] - ");
+        break;
+    case ERROR_MSG:
+        input_msg.insert(input_msg.size(), " [ERROR] - ");
+        break;
+    case WARNING_MSG:
+        input_msg.insert(input_msg.size(), " [WARNING] - ");
+        break;
+    case INFO_MSG:
+        input_msg.insert(input_msg.size(), " [INFO] - ");
+        break;
+    case DEBUG_MSG:
+        input_msg.insert(input_msg.size(), " [DEBUG] - ");
+        break;
+    default:
+        return -EINVAL;
+        break;
+    }
+    input_msg.insert(input_msg.size(), msg);
+    //open file and write down
+    int fp = open(full_file_name.c_str(), O_RDWR);
+    if(fp < 0)
+        return -ENOENT;
+    int wr = write(fp, input_msg.c_str(), input_msg.size());
+    if(wr != input_msg.size())
+        return -EINVAL;
+    close(fp);
     return 0;
 }
 
