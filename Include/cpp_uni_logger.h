@@ -1,0 +1,117 @@
+/**
+ * @file cpp_uni_logger.h
+ * @author Sledoff (norscreecs@gmail.com)
+ * @brief This is a simple library for adding logging and informative data output to your project.
+ * @version 1.0
+ * @date 2025-11-22
+ * 
+ * @copyright Copyright (c) 2025
+ * 
+ */
+
+#ifndef CPP_UNI_LOGGER_H_
+#define CPP_UNI_LOGGER_H_
+
+#include <cstdint>
+#include <ctime>
+#include <cstring>
+#include <iostream>
+#include <fcntl.h>
+#include <filesystem>
+#include <fstream>
+#include <string.h>
+#include <sys/stat.h>
+#include <unistd.h>
+
+namespace fs = std::filesystem;
+
+enum msg_level : uint8_t
+{
+    SIMPLE_MSG = 0,
+    FATAL_ERROR_MSG = 1,
+    ERROR_MSG = 2,
+    WARNING_MSG = 3,
+    INFO_MSG = 4,
+    DEBUG_MSG = 5
+};
+
+class cpp_uni_logger
+{
+private:
+    inline static cpp_uni_logger* instance{nullptr};
+
+    cpp_uni_logger(cpp_uni_logger &obj) = delete;
+    ~cpp_uni_logger() = default;
+    cpp_uni_logger() = default;
+
+    std::string file_path = "log/";
+    std::string full_file_name = "log/file.log";
+    msg_level log_level = ERROR_MSG;
+    bool rewrite_flag = true;
+    bool log_enable = false;
+
+    int print_info(const std::string& msg, msg_level level);
+public:
+    static cpp_uni_logger* get_instance(){
+        if(instance == nullptr)
+            instance = new cpp_uni_logger();
+        return instance;
+    }
+    /**
+     * @brief Set max log level that will be write into file. Default = ERROR_MSG.
+     * 
+     * @param level - max log level
+     * @return new log level or -EINVAL.
+     */
+    int set_log_level(msg_level level);
+    /**
+     * @brief Flag for rewrite data into file with the same name
+     * 
+     * @param flag false - for make unique file for every time
+     */
+    void set_rewrite_flag(bool flag);
+    /**
+     * @brief Set the file path object
+     * 
+     * @param u_file_path path to directory where log file will be create
+     */
+    int set_file_path(std::string u_file_path);
+
+    /**
+     * @brief Create file for log data with default name "log"
+     */
+    int create_log_file();
+    /**
+     * @brief main function for create file.
+     * 
+     * @param file_name name of file
+     * @return int 
+     */
+    int create_log_file(const std::string& file_name);
+    /**
+     * @brief Create file for log data with name from user. And set max log level
+     * 
+     * @param file_name name of file
+     * @param level max log level
+     */
+    int create_log_file(const std::string& file_name, msg_level level);
+    /**
+     * @brief Function for write into log file and into terminal
+     * 
+     * @param msg message that will be write
+     * @param level log level of message
+     */
+    int write_log(const std::string& msg, msg_level level);
+
+    int simple_msg(const std::string& msg);
+    int fatal_error_msg(const std::string& msg);
+    int fatal_error_msg(const std::string& msg, int8_t error_num);
+    int error_msg(const std::string& msg);
+    int error_msg(const std::string& msg, int8_t error_num);
+    int warning_msg(const std::string& msg);
+    int info_msg(const std::string& msg);
+    int debug_msg(const std::string& msg);
+
+};
+
+#endif
