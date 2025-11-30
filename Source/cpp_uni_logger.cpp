@@ -11,12 +11,7 @@
 
 #include "cpp_uni_logger.h"
 
-/**
- * @brief Set max log level that will be write into file. Default = ERROR_MSG.
- * 
- * @param level - max log level
- * @return new log level or -EINVAL.
- */
+
 int cpp_uni_logger::set_log_level(msg_level level){
     if(level > DEBUG_MSG)
         return -EINVAL;
@@ -24,11 +19,6 @@ int cpp_uni_logger::set_log_level(msg_level level){
     return level;
 }
 
-/**
- * @brief Flag for rewrite data into file with the same name
- * 
- * @param flag false - for make unique file for every time
- */
 void cpp_uni_logger::set_rewrite_flag(bool flag){
     rewrite_flag = flag;
 }
@@ -54,21 +44,12 @@ int cpp_uni_logger::set_file_path(std::string u_file_path){
     return 0;
 }
 
-/**
- * @brief Create file for log data with default name "log"
- */
 int cpp_uni_logger::create_log_file(){
     int state = 0;
     state = create_log_file("log");
     return state;
 }
 
-/**
- * @brief Create file for log data with name from user. And set max log level
- * 
- * @param file_name name of file
- * @param level max log level
- */
 int cpp_uni_logger::create_log_file(const std::string &file_name, msg_level level){
     int state = 0;
     state = set_log_level(level);
@@ -78,12 +59,6 @@ int cpp_uni_logger::create_log_file(const std::string &file_name, msg_level leve
     return state;
 }
 
-/**
- * @brief main function for create file.
- * 
- * @param file_name name of file
- * @return int 
- */
 int cpp_uni_logger::create_log_file(const std::string &file_name){
     if(file_name.size() == 0)
         return -EINVAL;
