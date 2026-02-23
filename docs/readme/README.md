@@ -1,7 +1,7 @@
 # cpp_uni_logger
 This is a simple library for adding logging and informative data output to your project.
 
-README in other landuages: [Русский](docs/readme/README.ru.md)
+README in other landuages: [Русский](README.ru.md)
 
 ### Include library
 You can simply add files from **Include** and **Source** directories to your project to take advantage of all the library's features.
