@@ -1,12 +1,7 @@
 cmake_minimum_required(VERSION 3.18)
 project(cpp_uni_logger)
 
-# Set the source and include directories
 set(SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
-
-include_directories(${SOURCE_DIR}/Source
-                    ${SOURCE_DIR}/Include
-)
 
 # Specify header and source files
 set(INCLUDES_FILES 
@@ -17,5 +12,12 @@ set(SOURCES_FILES
     ${SOURCE_DIR}/Source/cpp_uni_logger.cpp
 )
 
-# Create the executable
-add_executable(cpp_uni_logger ${SOURCES_FILES} ${INCLUDES_FILES})
+add_library(cpp_uni_logger STATIC ${SOURCES_FILES})
+
+target_include_directories(cpp_uni_logger PUBLIC
+    ${SOURCE_DIR}/Include
+)
+
+target_include_directories(cpp_uni_logger PRIVATE
+    ${SOURCE_DIR}/Source
+)
